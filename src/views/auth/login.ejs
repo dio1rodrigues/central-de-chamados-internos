@@ -1,0 +1,44 @@
+<section class="auth-container">
+  <div class="auth-card">
+    <h1>Entrar</h1>
+
+    <p>Acesse a Central de Chamados Internos.</p>
+
+    <% if (error) { %>
+      <div class="alert alert-error">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form action="/login" method="POST">
+      <div class="form-group">
+        <label for="email">E-mail</label>
+
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value="<%= email %>"
+          autocomplete="email"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Senha</label>
+
+        <input
+          type="password"
+          id="password"
+          name="password"
+          autocomplete="current-password"
+          required
+        >
+      </div>
+
+      <button type="submit">
+        Entrar
+      </button>
+    </form>
+  </div>
+</section>

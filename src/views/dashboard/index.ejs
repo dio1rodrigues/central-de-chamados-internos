@@ -1,0 +1,17 @@
+<section>
+  <h1>Dashboard</h1>
+
+  <p>
+    Usuário autenticado:
+    <strong><%= currentUser.name %></strong>
+  </p>
+
+  <p>
+    Perfil:
+    <strong><%= currentUser.role %></strong>
+  </p>
+
+  <form action="/logout" method="POST">
+    <button type="submit">Sair</button>
+  </form>
+</section>

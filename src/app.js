@@ -1,8 +1,11 @@
 const express = require("express");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
+const createSessionMiddleware = require("./config/session");
 
 const homeRoutes = require("./routes/home.routes");
+const authRoutes = require("./routes/auth.routes");
+const dashboardRoutes = require("./routes/dashboard.routes");
 
 const app = express();
 
@@ -16,8 +19,17 @@ app.use(expressLayouts);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(createSessionMiddleware());
+
+app.use((req, res, next) => {
+  res.locals.currentUser = req.session.user || null;
+  next();
+});
 
 // Rotas
+app.use(authRoutes);
+app.use(dashboardRoutes);
 app.use("/", homeRoutes);
+
 
 module.exports = app;
