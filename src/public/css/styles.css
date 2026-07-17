@@ -58,3 +58,37 @@ body {
   border: 1px solid #dbe1e8;
   border-radius: 8px;
 }
+
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar__links form {
+  margin: 0;
+}
+
+.navbar__links button {
+  padding: 8px 12px;
+  border: 1px solid #ffffff;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.error-page {
+  max-width: 640px;
+  margin: 80px auto;
+  text-align: center;
+}
+
+.error-page h1 {
+  margin: 0;
+  font-size: 5rem;
+}
+
+.error-page h2 {
+  margin-top: 8px;
+}

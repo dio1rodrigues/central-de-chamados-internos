@@ -6,6 +6,7 @@ const createSessionMiddleware = require("./config/session");
 const homeRoutes = require("./routes/home.routes");
 const authRoutes = require("./routes/auth.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
+const adminRoutes = require("./routes/admin.routes");
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 // Rotas
 app.use(authRoutes);
 app.use(dashboardRoutes);
+app.use(adminRoutes);
 app.use("/", homeRoutes);
 
 

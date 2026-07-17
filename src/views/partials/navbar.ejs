@@ -4,8 +4,22 @@
       Central de Chamados Internos
     </a>
 
-    <nav>
-      <a href="/">Início</a>
+    <nav class="navbar__links">
+      <% if (currentUser) { %>
+        <a href="/dashboard">Dashboard</a>
+
+        <% if (currentUser.role === "ADMIN") { %>
+          <a href="/admin">Administração</a>
+        <% } %>
+
+        <form action="/logout" method="POST">
+          <button type="submit">
+            Sair
+          </button>
+        </form>
+      <% } else { %>
+        <a href="/login">Entrar</a>
+      <% } %>
     </nav>
   </div>
 </header>

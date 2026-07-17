@@ -1,12 +1,12 @@
 const express = require("express");
 
+const {
+  requireAuth,
+} = require("../middlewares/auth.middleware");
+
 const router = express.Router();
 
-router.get("/dashboard", (req, res) => {
-  if (!req.session.user) {
-    return res.redirect("/login");
-  }
-
+router.get("/dashboard", requireAuth, (req, res) => {
   return res.render("dashboard/index", {
     title: "Dashboard",
   });
