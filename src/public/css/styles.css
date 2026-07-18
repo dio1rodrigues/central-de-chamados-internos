@@ -179,3 +179,43 @@ td {
     flex-direction: column;
   }
 }
+
+.ticket-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border: 1px solid #dbe1e8;
+  border-radius: 8px;
+}
+
+.ticket-filters .form-group {
+  margin-bottom: 0;
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 1px;
+}
+
+@media (max-width: 900px) {
+  .ticket-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .ticket-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

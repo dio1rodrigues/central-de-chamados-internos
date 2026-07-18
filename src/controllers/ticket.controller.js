@@ -7,6 +7,7 @@ const {
 const {
   TICKET_TYPE_VALUES,
   TICKET_PRIORITY_VALUES,
+  TICKET_STATUS_VALUES,
   TICKET_TYPE_LABELS,
   TICKET_PRIORITY_LABELS,
   TICKET_STATUS_LABELS,
@@ -22,6 +23,11 @@ const getFormOptions = () => ({
     value,
     label: TICKET_PRIORITY_LABELS[value],
   })),
+
+  statusOptions: TICKET_STATUS_VALUES.map((value) => ({
+    value,
+    label: TICKET_STATUS_LABELS[value],
+  })),
 });
 
 const showCreateForm = (req, res) => {
@@ -32,6 +38,7 @@ const showCreateForm = (req, res) => {
       description: "",
       type: "",
       priority: "",
+      status: "",
     },
     errors: {},
     ...getFormOptions(),
@@ -64,16 +71,36 @@ const createTicket = async (req, res, next) => {
 
 const listTickets = async (req, res, next) => {
   try {
+    const currentUser = req.session.user;
+    const isAdmin = currentUser.role === "ADMIN";
+
+    const {
+      selectedFilters,
+      databaseFilters,
+    } = isAdmin
+      ? getAdminFilters(req.query)
+      : {
+          selectedFilters: {
+            type: "",
+            priority: "",
+            status: "",
+          },
+          databaseFilters: {},
+        };
+
     const tickets = await ticketService.listTicketsForUser(
-      req.session.user
+      currentUser,
+      databaseFilters
     );
 
     return res.render("tickets/index", {
       title: "Chamados",
       tickets,
+      selectedFilters,
       typeLabels: TICKET_TYPE_LABELS,
       priorityLabels: TICKET_PRIORITY_LABELS,
       statusLabels: TICKET_STATUS_LABELS,
+      ...getFilterOptions(),
     });
   } catch (error) {
     return next(error);
@@ -103,6 +130,57 @@ const showTicket = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
+};
+
+const getFilterOptions = () => ({
+  typeOptions: TICKET_TYPE_VALUES.map((value) => ({
+    value,
+    label: TICKET_TYPE_LABELS[value],
+  })),
+
+  priorityOptions: TICKET_PRIORITY_VALUES.map((value) => ({
+    value,
+    label: TICKET_PRIORITY_LABELS[value],
+  })),
+
+  statusOptions: TICKET_STATUS_VALUES.map((value) => ({
+    value,
+    label: TICKET_STATUS_LABELS[value],
+  })),
+});
+
+const getValidFilter = (value, allowedValues) => {
+  return allowedValues.includes(value) ? value : "";
+};
+
+const getAdminFilters = (query = {}) => {
+  const selectedFilters = {
+    type: getValidFilter(query.type, TICKET_TYPE_VALUES),
+    priority: getValidFilter(
+      query.priority,
+      TICKET_PRIORITY_VALUES
+    ),
+    status: getValidFilter(query.status, TICKET_STATUS_VALUES),
+  };
+
+  const databaseFilters = {};
+
+  if (selectedFilters.type) {
+    databaseFilters.type = selectedFilters.type;
+  }
+
+  if (selectedFilters.priority) {
+    databaseFilters.priority = selectedFilters.priority;
+  }
+
+  if (selectedFilters.status) {
+    databaseFilters.status = selectedFilters.status;
+  }
+
+  return {
+    selectedFilters,
+    databaseFilters,
+  };
 };
 
 module.exports = {

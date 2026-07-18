@@ -7,15 +7,91 @@
       %>
     </h1>
 
-    <p>
-      Consulte e acompanhe as demandas registradas.
-    </p>
+    <p>Consulte e acompanhe as demandas registradas.</p>
   </div>
 
   <a href="/chamados/novo">
     Novo chamado
   </a>
 </section>
+
+<% if (currentUser.role === "ADMIN") { %>
+  <form
+    class="ticket-filters"
+    action="/chamados"
+    method="GET"
+  >
+    <div class="form-group">
+      <label for="filter-status">Status</label>
+
+      <select id="filter-status" name="status">
+        <option value="">Todos</option>
+
+        <% statusOptions.forEach((option) => { %>
+          <option
+            value="<%= option.value %>"
+            <%= selectedFilters.status === option.value
+              ? "selected"
+              : ""
+            %>
+          >
+            <%= option.label %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="filter-type">Tipo</label>
+
+      <select id="filter-type" name="type">
+        <option value="">Todos</option>
+
+        <% typeOptions.forEach((option) => { %>
+          <option
+            value="<%= option.value %>"
+            <%= selectedFilters.type === option.value
+              ? "selected"
+              : ""
+            %>
+          >
+            <%= option.label %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="filter-priority">Prioridade</label>
+
+      <select id="filter-priority" name="priority">
+        <option value="">Todas</option>
+
+        <% priorityOptions.forEach((option) => { %>
+          <option
+            value="<%= option.value %>"
+            <%= selectedFilters.priority === option.value
+              ? "selected"
+              : ""
+            %>
+          >
+            <%= option.label %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button type="submit">
+        Filtrar
+      </button>
+
+      <a href="/chamados">
+        Limpar filtros
+      </a>
+    </div>
+  </form>
+<% } %>
 
 <% if (tickets.length === 0) { %>
   <div class="empty-state">
@@ -37,7 +113,7 @@
           <th>Prioridade</th>
           <th>Status</th>
           <th>Criação</th>
-          <th></th>
+          <th>Ações</th>
         </tr>
       </thead>
 
@@ -48,15 +124,25 @@
             <td><%= ticket.title %></td>
 
             <% if (currentUser.role === "ADMIN") { %>
-              <td><%= ticket.requester?.name || "Não informado" %></td>
+              <td>
+                <%= ticket.requester?.name || "Não informado" %>
+              </td>
             <% } %>
 
-            <td><%= typeLabels[ticket.type] %></td>
-            <td><%= priorityLabels[ticket.priority] %></td>
-            <td><%= statusLabels[ticket.status] %></td>
+            <td>
+              <%= typeLabels[ticket.type] || ticket.type %>
+            </td>
 
             <td>
-              <%= ticket.createdAt.toLocaleString("pt-BR") %>
+              <%= priorityLabels[ticket.priority] || ticket.priority %>
+            </td>
+
+            <td>
+              <%= statusLabels[ticket.status] || ticket.status %>
+            </td>
+
+            <td>
+              <%= new Date(ticket.createdAt).toLocaleString("pt-BR") %>
             </td>
 
             <td>

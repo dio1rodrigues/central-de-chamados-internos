@@ -41,15 +41,15 @@ const createTicket = async ({
   });
 };
 
-const listTicketsForUser = async (currentUser) => {
-  const filter =
+const listTicketsForUser = async (currentUser, filters = {}) => {
+  const query =
     currentUser.role === "ADMIN"
-      ? {}
+      ? { ...filters }
       : {
           requester: currentUser.id,
         };
 
-  return Ticket.find(filter)
+  return Ticket.find(query)
     .populate("requester", "name email")
     .sort({
       createdAt: -1,
