@@ -1,0 +1,122 @@
+<section class="page-header">
+  <div>
+    <h1>Novo chamado</h1>
+
+    <p>
+      Preencha as informações necessárias para registrar a demanda.
+    </p>
+  </div>
+
+  <a href="/chamados">
+    Voltar para chamados
+  </a>
+</section>
+
+<form
+  class="ticket-form"
+  action="/chamados"
+  method="POST"
+>
+  <div class="form-group">
+    <label for="title">Título</label>
+
+    <input
+      type="text"
+      id="title"
+      name="title"
+      value="<%= values.title %>"
+      minlength="5"
+      maxlength="120"
+      required
+    >
+
+    <% if (errors.title) { %>
+      <span class="field-error">
+        <%= errors.title %>
+      </span>
+    <% } %>
+  </div>
+
+  <div class="form-group">
+    <label for="description">Descrição</label>
+
+    <textarea
+      id="description"
+      name="description"
+      rows="7"
+      minlength="10"
+      maxlength="5000"
+      required
+    ><%= values.description %></textarea>
+
+    <% if (errors.description) { %>
+      <span class="field-error">
+        <%= errors.description %>
+      </span>
+    <% } %>
+  </div>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="type">Tipo</label>
+
+      <select
+        id="type"
+        name="type"
+        required
+      >
+        <option value="">
+          Selecione
+        </option>
+
+        <% typeOptions.forEach((option) => { %>
+          <option
+            value="<%= option.value %>"
+            <%= values.type === option.value ? "selected" : "" %>
+          >
+            <%= option.label %>
+          </option>
+        <% }) %>
+      </select>
+
+      <% if (errors.type) { %>
+        <span class="field-error">
+          <%= errors.type %>
+        </span>
+      <% } %>
+    </div>
+
+    <div class="form-group">
+      <label for="priority">Prioridade</label>
+
+      <select
+        id="priority"
+        name="priority"
+        required
+      >
+        <option value="">
+          Selecione
+        </option>
+
+        <% priorityOptions.forEach((option) => { %>
+          <option
+            value="<%= option.value %>"
+            <%= values.priority === option.value ? "selected" : "" %>
+          >
+            <%= option.label %>
+          </option>
+        <% }) %>
+      </select>
+
+      <% if (errors.priority) { %>
+        <span class="field-error">
+          <%= errors.priority %>
+        </span>
+      <% } %>
+    </div>
+  </div>
+
+  <button type="submit">
+    Registrar chamado
+  </button>
+</form>

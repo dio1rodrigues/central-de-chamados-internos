@@ -1,0 +1,72 @@
+<section class="page-header">
+  <div>
+    <h1>
+      <%= currentUser.role === "ADMIN"
+        ? "Todos os chamados"
+        : "Meus chamados"
+      %>
+    </h1>
+
+    <p>
+      Consulte e acompanhe as demandas registradas.
+    </p>
+  </div>
+
+  <a href="/chamados/novo">
+    Novo chamado
+  </a>
+</section>
+
+<% if (tickets.length === 0) { %>
+  <div class="empty-state">
+    Nenhum chamado foi encontrado.
+  </div>
+<% } else { %>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Protocolo</th>
+          <th>Título</th>
+
+          <% if (currentUser.role === "ADMIN") { %>
+            <th>Solicitante</th>
+          <% } %>
+
+          <th>Tipo</th>
+          <th>Prioridade</th>
+          <th>Status</th>
+          <th>Criação</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% tickets.forEach((ticket) => { %>
+          <tr>
+            <td><%= ticket.protocol %></td>
+            <td><%= ticket.title %></td>
+
+            <% if (currentUser.role === "ADMIN") { %>
+              <td><%= ticket.requester?.name || "Não informado" %></td>
+            <% } %>
+
+            <td><%= typeLabels[ticket.type] %></td>
+            <td><%= priorityLabels[ticket.priority] %></td>
+            <td><%= statusLabels[ticket.status] %></td>
+
+            <td>
+              <%= ticket.createdAt.toLocaleString("pt-BR") %>
+            </td>
+
+            <td>
+              <a href="/chamados/<%= ticket._id %>">
+                Ver detalhes
+              </a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

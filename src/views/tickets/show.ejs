@@ -1,0 +1,52 @@
+<section class="page-header">
+  <div>
+    <span>Detalhes do chamado — <%= ticket.protocol %></span>
+    <h1><%= ticket.title %></h1>
+  </div>
+
+  <a href="/chamados">
+    Voltar
+  </a>
+</section>
+
+<div class="ticket-details">
+  <div>
+    <strong>Status</strong>
+    <span><%= statusLabels[ticket.status] %></span>
+  </div>
+
+  <div>
+    <strong>Tipo</strong>
+    <span><%= typeLabels[ticket.type] %></span>
+  </div>
+
+  <div>
+    <strong>Prioridade</strong>
+    <span><%= priorityLabels[ticket.priority] %></span>
+  </div>
+
+  <div>
+    <strong>Solicitante</strong>
+    <span><%= ticket.requester?.name || "Não informado" %></span>
+  </div>
+
+  <div>
+    <strong>Criado em</strong>
+    <span>
+      <%= ticket.createdAt.toLocaleString("pt-BR") %>
+    </span>
+  </div>
+
+  <div>
+    <strong>Última atualização</strong>
+    <span>
+      <%= ticket.updatedAt.toLocaleString("pt-BR") %>
+    </span>
+  </div>
+</div>
+
+<section class="ticket-description">
+  <h2>Descrição</h2>
+
+  <p><%= ticket.description %></p>
+</section>

@@ -29,6 +29,33 @@ const TICKET_STATUS_VALUES = Object.freeze(
   Object.values(TICKET_STATUSES)
 );
 
+const TICKET_TYPE_LABELS = Object.freeze({
+  [TICKET_TYPES.EVENT_SUPPORT]: "Apoio para eventos",
+  [TICKET_TYPES.INTERNAL_COMMUNICATION]:
+    "Publicação ou comunicação interna",
+  [TICKET_TYPES.ADMINISTRATIVE_RESOURCES]:
+    "Recursos administrativos",
+  [TICKET_TYPES.DOCUMENT_ADJUSTMENTS]:
+    "Ajustes em documentos",
+  [TICKET_TYPES.OPERATIONAL_SUPPORT]:
+    "Suporte operacional",
+  [TICKET_TYPES.OTHER]: "Outras demandas internas",
+});
+
+const TICKET_PRIORITY_LABELS = Object.freeze({
+  [TICKET_PRIORITIES.LOW]: "Baixa",
+  [TICKET_PRIORITIES.MEDIUM]: "Média",
+  [TICKET_PRIORITIES.HIGH]: "Alta",
+  [TICKET_PRIORITIES.URGENT]: "Urgente",
+});
+
+const TICKET_STATUS_LABELS = Object.freeze({
+  [TICKET_STATUSES.OPEN]: "Aberto",
+  [TICKET_STATUSES.IN_REVIEW]: "Em análise",
+  [TICKET_STATUSES.COMPLETED]: "Atendido",
+  [TICKET_STATUSES.CANCELED]: "Cancelado",
+});
+
 module.exports = {
   TICKET_TYPES,
   TICKET_PRIORITIES,
@@ -36,4 +63,7 @@ module.exports = {
   TICKET_TYPE_VALUES,
   TICKET_PRIORITY_VALUES,
   TICKET_STATUS_VALUES,
+  TICKET_TYPE_LABELS,
+  TICKET_PRIORITY_LABELS,
+  TICKET_STATUS_LABELS,
 };
