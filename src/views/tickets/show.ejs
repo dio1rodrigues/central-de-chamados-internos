@@ -57,6 +57,12 @@
   </div>
 <% } %>
 
+<% if (commentAdded) { %>
+  <div class="feedback feedback-success">
+    Comentário registrado com sucesso.
+  </div>
+<% } %>
+
 <% if (currentUser.role === "ADMIN") { %>
   <section class="status-update">
     <h2>Atualizar andamento</h2>
@@ -95,12 +101,80 @@
       </button>
     </form>
   </section>
+    <section class="comment-form">
+    <h2>Registrar comentário</h2>
+
+    <p>
+      Adicione uma informação sobre o atendimento deste chamado.
+    </p>
+
+    <form
+      action="/chamados/<%= ticket._id %>/comentarios"
+      method="POST"
+    >
+      <div class="form-group">
+        <label for="message">Comentário</label>
+
+        <textarea
+          id="message"
+          name="message"
+          rows="5"
+          maxlength="2000"
+          required
+        ><%= commentValue %></textarea>
+
+        <% if (commentError) { %>
+          <span class="field-error">
+            <%= commentError %>
+          </span>
+        <% } %>
+      </div>
+
+      <button type="submit">
+        Registrar comentário
+      </button>
+    </form>
+  </section>
 <% } %>
 
 <section class="ticket-description">
   <h2>Descrição</h2>
 
   <p><%= ticket.description %></p>
+</section>
+
+<section class="ticket-comments">
+  <h2>Comentários do atendimento</h2>
+
+  <% if (
+    !ticket.comments ||
+    ticket.comments.length === 0
+  ) { %>
+    <p>Nenhum comentário foi registrado.</p>
+  <% } else { %>
+    <ul>
+      <% [...ticket.comments]
+        .reverse()
+        .forEach((comment) => {
+      %>
+        <li>
+          <div class="comment-header">
+            <strong>
+              <%= comment.author?.name || "Usuário não informado" %>
+            </strong>
+
+            <span>
+              <%= new Date(
+                comment.createdAt
+              ).toLocaleString("pt-BR") %>
+            </span>
+          </div>
+
+          <p><%= comment.message %></p>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
 </section>
 
 <section class="status-history">

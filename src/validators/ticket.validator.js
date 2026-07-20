@@ -53,6 +53,31 @@ const validateCreateTicketInput = (input = {}) => {
   };
 };
 
+const validateCommentInput = (input = {}) => {
+  const values = {
+    message:
+      typeof input.message === "string"
+        ? input.message.trim()
+        : "",
+  };
+
+  const errors = {};
+
+  if (!values.message) {
+    errors.message = "O comentário é obrigatório.";
+  } else if (values.message.length > 2000) {
+    errors.message =
+      "O comentário deve possuir no máximo 2000 caracteres.";
+  }
+
+  return {
+    values,
+    errors,
+    isValid: Object.keys(errors).length === 0,
+  };
+};
+
 module.exports = {
   validateCreateTicketInput,
+  validateCommentInput,
 };

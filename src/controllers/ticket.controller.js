@@ -2,6 +2,7 @@ const ticketService = require("../services/ticket.service");
 
 const {
   validateCreateTicketInput,
+  validateCommentInput,
 } = require("../validators/ticket.validator");
 
 const {
@@ -24,11 +25,6 @@ const getFormOptions = () => ({
     value,
     label: TICKET_PRIORITY_LABELS[value],
   })),
-
-  statusOptions: TICKET_STATUS_VALUES.map((value) => ({
-    value,
-    label: TICKET_STATUS_LABELS[value],
-  })),
 });
 
 const showCreateForm = (req, res) => {
@@ -39,7 +35,6 @@ const showCreateForm = (req, res) => {
       description: "",
       type: "",
       priority: "",
-      status: "",
     },
     errors: {},
     ...getFormOptions(),
@@ -122,9 +117,10 @@ const showTicket = async (req, res, next) => {
     }
 
     return res.render(
-      "tickets/show",
-      getTicketDetailsViewData(ticket, {
-        statusUpdated: req.query.statusUpdated === "1",
+    "tickets/show",
+    getTicketDetailsViewData(ticket, {
+      statusUpdated: req.query.statusUpdated === "1",
+      commentAdded: req.query.commentAdded === "1",
   })
 );
   } catch (error) {
@@ -198,6 +194,9 @@ const getTicketDetailsViewData = (
   {
     statusError = "",
     statusUpdated = false,
+    commentError = "",
+    commentValue = "",
+    commentAdded = false,
   } = {}
 ) => ({
   title: `Detalhes — ${ticket.protocol}`,
@@ -208,6 +207,9 @@ const getTicketDetailsViewData = (
   statusOptions: getAvailableStatusOptions(ticket.status),
   statusError,
   statusUpdated,
+  commentError,
+  commentValue,
+  commentAdded,
 });
 
 const updateStatus = async (req, res, next) => {
@@ -268,10 +270,89 @@ const updateStatus = async (req, res, next) => {
   }
 };
 
+const addComment = async (req, res, next) => {
+  try {
+    const validation = validateCommentInput(req.body);
+
+    if (!validation.isValid) {
+      const ticket = await ticketService.findTicketForUser(
+        req.params.id,
+        req.session.user
+      );
+
+      if (!ticket) {
+        return res.status(404).render("errors/404", {
+          title: "Chamado não encontrado",
+        });
+      }
+
+      return res.status(400).render(
+        "tickets/show",
+        getTicketDetailsViewData(ticket, {
+          commentError: validation.errors.message,
+          commentValue: validation.values.message,
+        })
+      );
+    }
+
+    const ticket = await ticketService.addTicketComment({
+      ticketId: req.params.id,
+      authorId: req.session.user.id,
+      message: validation.values.message,
+    });
+
+    if (!ticket) {
+      return res.status(404).render("errors/404", {
+        title: "Chamado não encontrado",
+      });
+    }
+
+    return res.redirect(
+      `/chamados/${ticket._id}?commentAdded=1`
+    );
+  } catch (error) {
+    const expectedErrors = [
+      "INVALID_INPUT",
+      "INVALID_COMMENT",
+    ];
+
+    if (!expectedErrors.includes(error.code)) {
+      return next(error);
+    }
+
+    try {
+      const ticket = await ticketService.findTicketForUser(
+        req.params.id,
+        req.session.user
+      );
+
+      if (!ticket) {
+        return res.status(404).render("errors/404", {
+          title: "Chamado não encontrado",
+        });
+      }
+
+      return res.status(400).render(
+        "tickets/show",
+        getTicketDetailsViewData(ticket, {
+          commentError: error.message,
+          commentValue:
+            typeof req.body.message === "string"
+              ? req.body.message.trim()
+              : "",
+        })
+      );
+    } catch (readError) {
+      return next(readError);
+    }
+  }
+};
+
 module.exports = {
   showCreateForm,
   createTicket,
   listTickets,
   showTicket,
   updateStatus,
+  addComment,
 };

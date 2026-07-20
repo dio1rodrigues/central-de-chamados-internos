@@ -146,9 +146,56 @@ const updateTicketStatus = async ({
   return ticket;
 };
 
+const addTicketComment = async ({
+  ticketId,
+  authorId,
+  message,
+}) => {
+  if (
+    !mongoose.isValidObjectId(ticketId) ||
+    !mongoose.isValidObjectId(authorId)
+  ) {
+    throw createTicketServiceError(
+      "INVALID_INPUT",
+      "Dados inválidos para registrar o comentário."
+    );
+  }
+
+  const normalizedMessage =
+    typeof message === "string"
+      ? message.trim()
+      : "";
+
+  if (
+    normalizedMessage.length === 0 ||
+    normalizedMessage.length > 2000
+  ) {
+    throw createTicketServiceError(
+      "INVALID_COMMENT",
+      "O comentário informado é inválido."
+    );
+  }
+
+  const ticket = await Ticket.findById(ticketId);
+
+  if (!ticket) {
+    return null;
+  }
+
+  ticket.comments.push({
+    author: authorId,
+    message: normalizedMessage,
+  });
+
+  await ticket.save();
+
+  return ticket;
+};
+
 module.exports = {
   createTicket,
   listTicketsForUser,
   findTicketForUser,
   updateTicketStatus,
+  addTicketComment,
 };
