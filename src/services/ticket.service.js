@@ -18,6 +18,7 @@ const createTicket = async ({
   description,
   type,
   priority,
+  attachment = null,
 }) => {
   if (!mongoose.isValidObjectId(requesterId)) {
     throw new Error("Solicitante inválido.");
@@ -32,6 +33,10 @@ const createTicket = async ({
     type,
     priority,
     requester: requesterId,
+
+    attachments: attachment
+      ? [attachment]
+      : [],
 
     statusHistory: [
       {

@@ -10,6 +10,10 @@ const {
   requireAdmin,
 } = require("../middlewares/role.middleware");
 
+const {
+  uploadTicketAttachment,
+} = require("../middlewares/upload.middleware");
+
 const router = express.Router();
 
 router.get(
@@ -21,6 +25,7 @@ router.get(
 router.post(
   "/chamados",
   requireAuth,
+  uploadTicketAttachment,
   ticketController.createTicket
 );
 
@@ -37,17 +42,12 @@ router.post(
   ticketController.updateStatus
 );
 
-router.post(
-  "/chamados/:id/comentarios",
-  requireAuth,
-  requireAdmin,
-  ticketController.addComment
-);
-
 router.get(
   "/chamados/:id",
   requireAuth,
   ticketController.showTicket
 );
+
+
 
 module.exports = router;

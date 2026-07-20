@@ -348,3 +348,53 @@ td {
     grid-template-columns: 1fr;
   }
 }
+
+.field-help {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.ticket-attachments {
+  padding: 24px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border: 1px solid #dbe1e8;
+  border-radius: 8px;
+}
+
+.ticket-attachments ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.ticket-attachments li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.ticket-attachments li div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ticket-attachments li span {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 600px) {
+  .ticket-attachments li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

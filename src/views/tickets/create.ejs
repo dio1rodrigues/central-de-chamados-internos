@@ -13,9 +13,10 @@
 </section>
 
 <form
-  class="ticket-form"
-  action="/chamados"
-  method="POST"
+class="ticket-form"
+action="/chamados"
+method="POST"
+enctype="multipart/form-data"
 >
   <div class="form-group">
     <label for="title">Título</label>
@@ -114,6 +115,30 @@
         </span>
       <% } %>
     </div>
+  </div>
+
+    <div class="form-group">
+    <label for="attachment">
+      Anexo opcional
+    </label>
+
+    <input
+      type="file"
+      id="attachment"
+      name="attachment"
+      accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+    >
+
+    <small class="field-help">
+      Formatos permitidos: PDF, PNG, JPG e JPEG.
+      Tamanho máximo: 5 MB.
+    </small>
+
+    <% if (fileError) { %>
+      <span class="field-error">
+        <%= fileError %>
+      </span>
+    <% } %>
   </div>
 
   <button type="submit">

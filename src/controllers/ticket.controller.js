@@ -15,6 +15,11 @@ const {
 } = require("../validators/ticket.validator");
 
 const {
+  buildAttachmentData,
+  removeUploadedFile,
+} = require("../utils/upload.util");
+
+const {
   TICKET_TYPE_VALUES,
   TICKET_PRIORITY_VALUES,
   TICKET_STATUS_VALUES,
@@ -39,50 +44,84 @@ const getFormOptions = () => ({
 const showCreateForm = (req, res) => {
   return res.render("tickets/create", {
     title: "Novo chamado",
+
     values: {
       title: "",
       description: "",
       type: "",
       priority: "",
     },
+
     errors: {},
+    fileError: "",
+
     ...getFormOptions(),
   });
 };
 
 const createTicket = async (req, res, next) => {
-  try {
-    const validation = validateCreateTicketInput(req.body);
+  let uploadedFile = req.file || null;
 
-    if (!validation.isValid) {
-      return res.status(400).render("tickets/create", {
-        title: "Novo chamado",
-        values: validation.values,
-        errors: validation.errors,
-        ...getFormOptions(),
-      });
+  try {
+    const validation =
+      validateCreateTicketInput(req.body);
+
+    const fileError =
+      req.fileUploadError || "";
+
+    if (!validation.isValid || fileError) {
+      await removeUploadedFile(uploadedFile);
+
+      return res.status(400).render(
+        "tickets/create",
+        {
+          title: "Novo chamado",
+          values: validation.values,
+          errors: validation.errors,
+          fileError,
+          ...getFormOptions(),
+        }
+      );
     }
 
-    const ticket = await ticketService.createTicket({
-      requesterId: req.session.user.id,
-      ...validation.values,
-    });
+    const attachment =
+      buildAttachmentData(uploadedFile);
+
+    const ticket =
+      await ticketService.createTicket({
+        requesterId: req.session.user.id,
+        ...validation.values,
+        attachment,
+      });
+
+    uploadedFile = null;
 
     await auditService.recordAudit({
-    action: AUDIT_ACTIONS.TICKET_CREATED,
-    actorId: req.session.user.id,
-    ticketId: ticket._id,
-    description: `Chamado ${ticket.protocol} aberto.`,
-    metadata: {
-      protocol: ticket.protocol,
-      type: ticket.type,
-      priority: ticket.priority,
-    },
-    ...getRequestContext(req),
+      action: AUDIT_ACTIONS.TICKET_CREATED,
+      actorId: req.session.user.id,
+      ticketId: ticket._id,
+      description:
+        `Chamado ${ticket.protocol} criado.`,
+
+      metadata: {
+        protocol: ticket.protocol,
+        type: ticket.type,
+        priority: ticket.priority,
+        hasAttachment: Boolean(attachment),
+
+        attachmentName:
+          attachment?.originalName || null,
+      },
+
+      ...getRequestContext(req),
     });
 
-    return res.redirect(`/chamados/${ticket._id}`);
+    return res.redirect(
+      `/chamados/${ticket._id}`
+    );
   } catch (error) {
+    await removeUploadedFile(uploadedFile);
+
     return next(error);
   }
 };

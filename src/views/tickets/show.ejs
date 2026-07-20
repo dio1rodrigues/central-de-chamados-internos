@@ -143,6 +143,39 @@
   <p><%= ticket.description %></p>
 </section>
 
+<section class="ticket-attachments">
+  <h2>Anexos</h2>
+
+  <% if (
+    !ticket.attachments ||
+    ticket.attachments.length === 0
+  ) { %>
+    <p>Nenhum anexo foi enviado.</p>
+  <% } else { %>
+    <ul>
+      <% ticket.attachments.forEach((attachment) => { %>
+        <li>
+          <div>
+            <strong>
+              <%= attachment.originalName %>
+            </strong>
+
+            <span>
+              <%= attachment.mimeType %>
+            </span>
+          </div>
+
+          <span>
+            <%= (
+              attachment.size / 1024
+            ).toFixed(1) %> KB
+          </span>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
 <section class="ticket-comments">
   <h2>Comentários do atendimento</h2>
 
