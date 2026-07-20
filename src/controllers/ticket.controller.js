@@ -183,12 +183,12 @@ const showTicket = async (req, res, next) => {
     }
 
     return res.render(
-    "tickets/show",
-    getTicketDetailsViewData(ticket, {
-      statusUpdated: req.query.statusUpdated === "1",
-      commentAdded: req.query.commentAdded === "1",
-  })
-);
+      "tickets/show",
+      getTicketDetailsViewData(ticket, {
+        statusUpdated: req.query.statusUpdated === "1",
+        commentAdded: req.query.commentAdded === "1",
+      })
+    );
   } catch (error) {
     return next(error);
   }
@@ -392,29 +392,17 @@ const addComment = async (req, res, next) => {
       });
     }
 
-    if (!ticket) {
-  return res.status(404).render("errors/404", {
-    title: "Chamado não encontrado",
-  });
-}
-
-if (!ticket) {
-  return res.status(404).render("errors/404", {
-    title: "Chamado não encontrado",
-  });
-}
-
-  await auditService.recordAudit({
-    action: AUDIT_ACTIONS.TICKET_COMMENT_ADDED,
-    actorId: req.session.user.id,
-    ticketId: ticket._id,
-    description:
-      `Comentário registrado no chamado ${ticket.protocol}.`,
-    metadata: {
-      protocol: ticket.protocol,
-    },
-    ...getRequestContext(req),
-  });
+    await auditService.recordAudit({
+      action: AUDIT_ACTIONS.TICKET_COMMENT_ADDED,
+      actorId: req.session.user.id,
+      ticketId: ticket._id,
+      description:
+        `Comentário registrado no chamado ${ticket.protocol}.`,
+      metadata: {
+        protocol: ticket.protocol,
+      },
+      ...getRequestContext(req),
+    });
 
     return res.redirect(
       `/chamados/${ticket._id}?commentAdded=1`

@@ -42,12 +42,18 @@ router.post(
   ticketController.updateStatus
 );
 
+router.post(
+  "/chamados/:id/comentarios",
+  requireAuth,
+  requireAdmin,
+  ticketController.addComment
+);
+
 router.get(
   "/chamados/:id",
   requireAuth,
   ticketController.showTicket
 );
-
 
 
 module.exports = router;
