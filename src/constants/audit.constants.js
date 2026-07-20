@@ -1,0 +1,29 @@
+const AUDIT_ACTIONS = Object.freeze({
+  LOGIN_SUCCESS: "LOGIN_SUCCESS",
+  LOGIN_FAILURE: "LOGIN_FAILURE",
+  LOGOUT: "LOGOUT",
+  TICKET_CREATED: "TICKET_CREATED",
+  TICKET_STATUS_CHANGED: "TICKET_STATUS_CHANGED",
+  TICKET_COMMENT_ADDED: "TICKET_COMMENT_ADDED",
+});
+
+const AUDIT_ACTION_VALUES = Object.freeze(
+  Object.values(AUDIT_ACTIONS)
+);
+
+const AUDIT_ACTION_LABELS = Object.freeze({
+  [AUDIT_ACTIONS.LOGIN_SUCCESS]: "Login realizado",
+  [AUDIT_ACTIONS.LOGIN_FAILURE]: "Falha no login",
+  [AUDIT_ACTIONS.LOGOUT]: "Logout realizado",
+  [AUDIT_ACTIONS.TICKET_CREATED]: "Chamado aberto",
+  [AUDIT_ACTIONS.TICKET_STATUS_CHANGED]:
+    "Status do chamado alterado",
+  [AUDIT_ACTIONS.TICKET_COMMENT_ADDED]:
+    "Comentário registrado",
+});
+
+module.exports = {
+  AUDIT_ACTIONS,
+  AUDIT_ACTION_VALUES,
+  AUDIT_ACTION_LABELS,
+};

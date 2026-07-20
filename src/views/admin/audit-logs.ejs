@@ -1,0 +1,108 @@
+<section class="page-header">
+  <div>
+    <h1>Auditoria</h1>
+
+    <p>
+      Consulte as principais ações realizadas no sistema.
+    </p>
+  </div>
+
+  <a href="/admin">Voltar</a>
+</section>
+
+<form
+  class="audit-filters"
+  action="/admin/auditoria"
+  method="GET"
+>
+  <div class="form-group">
+    <label for="action">Tipo de ação</label>
+
+    <select id="action" name="action">
+      <option value="">Todas as ações</option>
+
+      <% actionOptions.forEach((option) => { %>
+        <option
+          value="<%= option.value %>"
+          <%= selectedAction === option.value
+            ? "selected"
+            : ""
+          %>
+        >
+          <%= option.label %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+
+  <div class="filter-actions">
+    <button type="submit">
+      Filtrar
+    </button>
+
+    <a href="/admin/auditoria">
+      Limpar filtro
+    </a>
+  </div>
+</form>
+
+<% if (logs.length === 0) { %>
+  <div class="empty-state">
+    Nenhum registro de auditoria foi encontrado.
+  </div>
+<% } else { %>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Ação</th>
+          <th>Usuário</th>
+          <th>Chamado</th>
+          <th>Descrição</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% logs.forEach((log) => { %>
+          <tr>
+            <td>
+              <%= new Date(
+                log.createdAt
+              ).toLocaleString("pt-BR") %>
+            </td>
+
+            <td>
+              <%= actionLabels[log.action] || log.action %>
+            </td>
+
+            <td>
+              <% if (log.actor) { %>
+                <div><%= log.actor.name %></div>
+                <small><%= log.actor.email %></small>
+              <% } else { %>
+                <div>Não identificado</div>
+
+                <% if (log.metadata?.email) { %>
+                  <small><%= log.metadata.email %></small>
+                <% } %>
+              <% } %>
+            </td>
+
+            <td>
+              <% if (log.ticket) { %>
+                <a href="/chamados/<%= log.ticket._id %>">
+                  <%= log.ticket.protocol %>
+                </a>
+              <% } else { %>
+                —
+              <% } %>
+            </td>
+
+            <td><%= log.description %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

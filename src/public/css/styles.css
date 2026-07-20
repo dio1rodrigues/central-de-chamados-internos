@@ -318,3 +318,33 @@ td {
     gap: 4px;
   }
 }
+
+.audit-filters {
+  display: grid;
+  grid-template-columns: minmax(240px, 420px) auto;
+  align-items: end;
+  gap: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border: 1px solid #dbe1e8;
+  border-radius: 8px;
+}
+
+.audit-filters .form-group {
+  margin-bottom: 0;
+}
+
+.table-container small {
+  color: #64748b;
+}
+
+.admin-actions {
+  margin-top: 24px;
+}
+
+@media (max-width: 700px) {
+  .audit-filters {
+    grid-template-columns: 1fr;
+  }
+}

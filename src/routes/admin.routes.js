@@ -1,9 +1,12 @@
 const express = require("express");
 
-const adminController = require("../controllers/admin.controller");
+const adminController =
+  require("../controllers/admin.controller");
+
 const {
   requireAuth,
 } = require("../middlewares/auth.middleware");
+
 const {
   requireAdmin,
 } = require("../middlewares/role.middleware");
@@ -15,6 +18,13 @@ router.get(
   requireAuth,
   requireAdmin,
   adminController.showAdminPanel
+);
+
+router.get(
+  "/admin/auditoria",
+  requireAuth,
+  requireAdmin,
+  adminController.showAuditLogs
 );
 
 module.exports = router;

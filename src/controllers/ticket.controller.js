@@ -1,4 +1,13 @@
 const ticketService = require("../services/ticket.service");
+const auditService = require("../services/audit.service");
+
+const {
+  AUDIT_ACTIONS,
+} = require("../constants/audit.constants");
+
+const {
+  getRequestContext,
+} = require("../utils/request-context.util");
 
 const {
   validateCreateTicketInput,
@@ -57,6 +66,19 @@ const createTicket = async (req, res, next) => {
     const ticket = await ticketService.createTicket({
       requesterId: req.session.user.id,
       ...validation.values,
+    });
+
+    await auditService.recordAudit({
+    action: AUDIT_ACTIONS.TICKET_CREATED,
+    actorId: req.session.user.id,
+    ticketId: ticket._id,
+    description: `Chamado ${ticket.protocol} aberto.`,
+    metadata: {
+      protocol: ticket.protocol,
+      type: ticket.type,
+      priority: ticket.priority,
+    },
+    ...getRequestContext(req),
     });
 
     return res.redirect(`/chamados/${ticket._id}`);
@@ -231,6 +253,25 @@ const updateStatus = async (req, res, next) => {
       });
     }
 
+    const latestHistory =
+    ticket.statusHistory[
+      ticket.statusHistory.length - 1
+    ];
+
+    await auditService.recordAudit({
+      action: AUDIT_ACTIONS.TICKET_STATUS_CHANGED,
+      actorId: req.session.user.id,
+      ticketId: ticket._id,
+      description:
+        `Status do chamado ${ticket.protocol} alterado.`,
+      metadata: {
+        protocol: ticket.protocol,
+        previousStatus: latestHistory.previousStatus,
+        newStatus: latestHistory.newStatus,
+      },
+      ...getRequestContext(req),
+    });
+
     return res.redirect(
       `/chamados/${ticket._id}?statusUpdated=1`
     );
@@ -307,9 +348,34 @@ const addComment = async (req, res, next) => {
       });
     }
 
+    if (!ticket) {
+  return res.status(404).render("errors/404", {
+    title: "Chamado não encontrado",
+  });
+}
+
+if (!ticket) {
+  return res.status(404).render("errors/404", {
+    title: "Chamado não encontrado",
+  });
+}
+
+  await auditService.recordAudit({
+    action: AUDIT_ACTIONS.TICKET_COMMENT_ADDED,
+    actorId: req.session.user.id,
+    ticketId: ticket._id,
+    description:
+      `Comentário registrado no chamado ${ticket.protocol}.`,
+    metadata: {
+      protocol: ticket.protocol,
+    },
+    ...getRequestContext(req),
+  });
+
     return res.redirect(
       `/chamados/${ticket._id}?commentAdded=1`
     );
+
   } catch (error) {
     const expectedErrors = [
       "INVALID_INPUT",
