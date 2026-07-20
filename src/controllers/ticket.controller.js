@@ -174,6 +174,11 @@ const showTicket = async (req, res, next) => {
     if (!ticket) {
       return res.status(404).render("errors/404", {
         title: "Chamado não encontrado",
+        heading: "Chamado não encontrado",
+        message:
+          "O chamado informado não existe ou você não possui acesso a ele.",
+        backUrl: "/chamados",
+        backText: "Voltar para chamados",
       });
     }
 

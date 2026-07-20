@@ -1,13 +1,29 @@
 const express = require("express");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
-const createSessionMiddleware = require("./config/session");
 
-const homeRoutes = require("./routes/home.routes");
-const authRoutes = require("./routes/auth.routes");
-const dashboardRoutes = require("./routes/dashboard.routes");
-const adminRoutes = require("./routes/admin.routes");
-const ticketRoutes = require("./routes/ticket.routes");
+const createSessionMiddleware =
+  require("./config/session");
+
+const homeRoutes =
+  require("./routes/home.routes");
+
+const authRoutes =
+  require("./routes/auth.routes");
+
+const dashboardRoutes =
+  require("./routes/dashboard.routes");
+
+const adminRoutes =
+  require("./routes/admin.routes");
+
+const ticketRoutes =
+  require("./routes/ticket.routes");
+
+const {
+  notFoundHandler,
+  errorHandler,
+} = require("./middlewares/error.middleware");
 
 const app = express();
 
@@ -22,6 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(createSessionMiddleware());
+
 app.use(
   "/vendor/chart.js",
   express.static(
@@ -36,7 +53,9 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.locals.currentUser = req.session.user || null;
+  res.locals.currentUser =
+    req.session.user || null;
+
   next();
 });
 
@@ -47,5 +66,8 @@ app.use(adminRoutes);
 app.use(ticketRoutes);
 app.use("/", homeRoutes);
 
+// Middlewares de erro
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 module.exports = app;

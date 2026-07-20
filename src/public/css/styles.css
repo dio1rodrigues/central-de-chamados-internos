@@ -514,3 +514,30 @@ td {
     flex-direction: column;
   }
 }
+
+.error-page {
+  max-width: 640px;
+  padding: 48px 32px;
+  margin: 60px auto;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid #dbe1e8;
+  border-radius: 8px;
+}
+
+.error-code {
+  display: block;
+  margin-bottom: 12px;
+  color: #64748b;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.error-page h1 {
+  margin: 0 0 16px;
+}
+
+.error-page p {
+  margin: 0 0 24px;
+  color: #475569;
+}

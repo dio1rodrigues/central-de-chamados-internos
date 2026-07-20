@@ -1,13 +1,17 @@
 <section class="error-page">
-  <h1>404</h1>
+  <span class="error-code">404</span>
 
-  <h2>Chamado não encontrado</h2>
+  <h1>
+    <%= heading || "Página não encontrada" %>
+  </h1>
 
   <p>
-    O chamado informado não existe ou você não possui acesso a ele.
+    <%= message ||
+      "O endereço informado não existe ou não está mais disponível."
+    %>
   </p>
 
-  <a href="/chamados">
-    Voltar para chamados
+  <a href="<%= backUrl || '/dashboard' %>">
+    <%= backText || "Voltar ao dashboard" %>
   </a>
 </section>
