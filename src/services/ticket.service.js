@@ -4,6 +4,8 @@ const Ticket = require("../models/Ticket");
 
 const {
   TICKET_STATUSES,
+  TICKET_STATUS_VALUES,
+  TICKET_STATUS_TRANSITIONS,
 } = require("../constants/ticket.constants");
 
 const {
@@ -77,8 +79,76 @@ const findTicketForUser = async (ticketId, currentUser) => {
     .lean();
 };
 
+const createTicketServiceError = (code, message) => {
+  const error = new Error(message);
+  error.code = code;
+
+  return error;
+};
+
+const updateTicketStatus = async ({
+  ticketId,
+  newStatus,
+  changedBy,
+}) => {
+  if (
+    !mongoose.isValidObjectId(ticketId) ||
+    !mongoose.isValidObjectId(changedBy)
+  ) {
+    throw createTicketServiceError(
+      "INVALID_INPUT",
+      "Dados inválidos para atualização do chamado."
+    );
+  }
+
+  if (!TICKET_STATUS_VALUES.includes(newStatus)) {
+    throw createTicketServiceError(
+      "INVALID_STATUS",
+      "O status informado é inválido."
+    );
+  }
+
+  const ticket = await Ticket.findById(ticketId);
+
+  if (!ticket) {
+    return null;
+  }
+
+  const previousStatus = ticket.status;
+
+  if (previousStatus === newStatus) {
+    throw createTicketServiceError(
+      "SAME_STATUS",
+      "O chamado já possui o status selecionado."
+    );
+  }
+
+  const allowedTransitions =
+    TICKET_STATUS_TRANSITIONS[previousStatus] || [];
+
+  if (!allowedTransitions.includes(newStatus)) {
+    throw createTicketServiceError(
+      "INVALID_TRANSITION",
+      "Essa mudança de status não é permitida."
+    );
+  }
+
+  ticket.status = newStatus;
+
+  ticket.statusHistory.push({
+    previousStatus,
+    newStatus,
+    changedBy,
+  });
+
+  await ticket.save();
+
+  return ticket;
+};
+
 module.exports = {
   createTicket,
   listTicketsForUser,
   findTicketForUser,
+  updateTicketStatus,
 };

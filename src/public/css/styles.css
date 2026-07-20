@@ -219,3 +219,49 @@ td {
     align-items: stretch;
   }
 }
+
+.status-update,
+.status-history {
+  padding: 24px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border: 1px solid #dbe1e8;
+  border-radius: 8px;
+}
+
+.status-update form {
+  max-width: 420px;
+}
+
+.status-history ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.status-history li {
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.feedback {
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+}
+
+.feedback-success {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+}
+
+.feedback-error {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+}

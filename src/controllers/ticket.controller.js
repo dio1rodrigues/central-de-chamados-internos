@@ -11,6 +11,7 @@ const {
   TICKET_TYPE_LABELS,
   TICKET_PRIORITY_LABELS,
   TICKET_STATUS_LABELS,
+  TICKET_STATUS_TRANSITIONS,
 } = require("../constants/ticket.constants");
 
 const getFormOptions = () => ({
@@ -120,13 +121,12 @@ const showTicket = async (req, res, next) => {
       });
     }
 
-    return res.render("tickets/show", {
-      title: `Detalhes — ${ticket.protocol}`,
-      ticket,
-      typeLabels: TICKET_TYPE_LABELS,
-      priorityLabels: TICKET_PRIORITY_LABELS,
-      statusLabels: TICKET_STATUS_LABELS,
-    });
+    return res.render(
+      "tickets/show",
+      getTicketDetailsViewData(ticket, {
+        statusUpdated: req.query.statusUpdated === "1",
+  })
+);
   } catch (error) {
     return next(error);
   }
@@ -183,9 +183,95 @@ const getAdminFilters = (query = {}) => {
   };
 };
 
+const getAvailableStatusOptions = (currentStatus) => {
+  const allowedStatuses =
+    TICKET_STATUS_TRANSITIONS[currentStatus] || [];
+
+  return allowedStatuses.map((value) => ({
+    value,
+    label: TICKET_STATUS_LABELS[value],
+  }));
+};
+
+const getTicketDetailsViewData = (
+  ticket,
+  {
+    statusError = "",
+    statusUpdated = false,
+  } = {}
+) => ({
+  title: `Detalhes — ${ticket.protocol}`,
+  ticket,
+  typeLabels: TICKET_TYPE_LABELS,
+  priorityLabels: TICKET_PRIORITY_LABELS,
+  statusLabels: TICKET_STATUS_LABELS,
+  statusOptions: getAvailableStatusOptions(ticket.status),
+  statusError,
+  statusUpdated,
+});
+
+const updateStatus = async (req, res, next) => {
+  try {
+    const newStatus =
+      typeof req.body.status === "string"
+        ? req.body.status.trim()
+        : "";
+
+    const ticket = await ticketService.updateTicketStatus({
+      ticketId: req.params.id,
+      newStatus,
+      changedBy: req.session.user.id,
+    });
+
+    if (!ticket) {
+      return res.status(404).render("errors/404", {
+        title: "Chamado não encontrado",
+      });
+    }
+
+    return res.redirect(
+      `/chamados/${ticket._id}?statusUpdated=1`
+    );
+  } catch (error) {
+    const expectedErrors = [
+      "INVALID_INPUT",
+      "INVALID_STATUS",
+      "SAME_STATUS",
+      "INVALID_TRANSITION",
+    ];
+
+    if (!expectedErrors.includes(error.code)) {
+      return next(error);
+    }
+
+    try {
+      const ticket = await ticketService.findTicketForUser(
+        req.params.id,
+        req.session.user
+      );
+
+      if (!ticket) {
+        return res.status(404).render("errors/404", {
+          title: "Chamado não encontrado",
+        });
+      }
+
+      return res.status(400).render(
+        "tickets/show",
+        getTicketDetailsViewData(ticket, {
+          statusError: error.message,
+        })
+      );
+    } catch (readError) {
+      return next(readError);
+    }
+  }
+};
+
 module.exports = {
   showCreateForm,
   createTicket,
   listTickets,
   showTicket,
+  updateStatus,
 };

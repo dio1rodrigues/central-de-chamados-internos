@@ -6,6 +6,10 @@ const {
   requireAuth,
 } = require("../middlewares/auth.middleware");
 
+const {
+  requireAdmin,
+} = require("../middlewares/role.middleware");
+
 const router = express.Router();
 
 router.get(
@@ -24,6 +28,13 @@ router.get(
   "/chamados",
   requireAuth,
   ticketController.listTickets
+);
+
+router.post(
+  "/chamados/:id/status",
+  requireAuth,
+  requireAdmin,
+  ticketController.updateStatus
 );
 
 router.get(
