@@ -22,6 +22,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(createSessionMiddleware());
+app.use(
+  "/vendor/chart.js",
+  express.static(
+    path.join(
+      __dirname,
+      "..",
+      "node_modules",
+      "chart.js",
+      "dist"
+    )
+  )
+);
 
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;

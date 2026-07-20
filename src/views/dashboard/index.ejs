@@ -1,17 +1,301 @@
-<section>
-  <h1>Dashboard</h1>
+<section class="page-header">
+  <div>
+    <span>Visão geral</span>
 
-  <p>
-    Usuário autenticado:
-    <strong><%= currentUser.name %></strong>
-  </p>
+    <h1>Dashboard</h1>
 
-  <p>
-    Perfil:
-    <strong><%= currentUser.role %></strong>
-  </p>
+    <p>
+      <% if (currentUser.role === "ADMIN") { %>
+        Indicadores de todos os chamados do sistema.
+      <% } else { %>
+        Indicadores dos seus chamados.
+      <% } %>
+    </p>
+  </div>
 
-  <form action="/logout" method="POST">
-    <button type="submit">Sair</button>
-  </form>
+  <a href="/chamados/novo">
+    Novo chamado
+  </a>
 </section>
+
+<section class="dashboard-metrics">
+  <article class="metric-card">
+    <span>Total de chamados</span>
+
+    <strong>
+      <%= dashboard.total %>
+    </strong>
+  </article>
+
+  <article class="metric-card">
+    <span>Abertos</span>
+
+    <strong>
+      <%= dashboard.countsByStatus.ABERTO %>
+    </strong>
+  </article>
+
+  <article class="metric-card">
+    <span>Em análise</span>
+
+    <strong>
+      <%= dashboard.countsByStatus.EM_ANALISE %>
+    </strong>
+  </article>
+
+  <article class="metric-card">
+    <span>Atendidos</span>
+
+    <strong>
+      <%= dashboard.countsByStatus.ATENDIDO %>
+    </strong>
+  </article>
+
+  <article class="metric-card">
+    <span>Cancelados</span>
+
+    <strong>
+      <%= dashboard.countsByStatus.CANCELADO %>
+    </strong>
+  </article>
+</section>
+
+<section class="dashboard-charts">
+  <article class="chart-card">
+    <h2>Chamados por status</h2>
+
+    <div class="chart-container">
+      <canvas
+        id="status-chart"
+        aria-label="Gráfico de chamados por status"
+        role="img"
+      ></canvas>
+    </div>
+  </article>
+
+  <article class="chart-card">
+    <h2>Chamados por tipo</h2>
+
+    <div class="chart-container">
+      <canvas
+        id="type-chart"
+        aria-label="Gráfico de chamados por tipo"
+        role="img"
+      ></canvas>
+    </div>
+  </article>
+</section>
+
+<section class="priority-summary">
+  <h2>Chamados por prioridade</h2>
+
+  <div class="priority-grid">
+    <% Object.entries(
+      dashboard.countsByPriority
+    ).forEach(([priority, total]) => { %>
+      <article>
+        <span>
+          <%= priorityLabels[priority] %>
+        </span>
+
+        <strong>
+          <%= total %>
+        </strong>
+      </article>
+    <% }) %>
+  </div>
+</section>
+
+<section class="recent-tickets">
+  <div class="section-header">
+    <h2>Chamados recentes</h2>
+
+    <a href="/chamados">
+      Ver todos
+    </a>
+  </div>
+
+  <% if (
+    dashboard.recentTickets.length === 0
+  ) { %>
+    <div class="empty-state">
+      Nenhum chamado foi encontrado.
+    </div>
+  <% } else { %>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Protocolo</th>
+            <th>Título</th>
+
+            <% if (
+              currentUser.role === "ADMIN"
+            ) { %>
+              <th>Solicitante</th>
+            <% } %>
+
+            <th>Tipo</th>
+            <th>Prioridade</th>
+            <th>Status</th>
+            <th>Criação</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% dashboard.recentTickets.forEach(
+            (ticket) => {
+          %>
+            <tr>
+              <td>
+                <%= ticket.protocol %>
+              </td>
+
+              <td>
+                <%= ticket.title %>
+              </td>
+
+              <% if (
+                currentUser.role === "ADMIN"
+              ) { %>
+                <td>
+                  <%= ticket.requester?.name ||
+                    "Não informado"
+                  %>
+                </td>
+              <% } %>
+
+              <td>
+                <%= typeLabels[ticket.type] %>
+              </td>
+
+              <td>
+                <%= priorityLabels[
+                  ticket.priority
+                ] %>
+              </td>
+
+              <td>
+                <%= statusLabels[
+                  ticket.status
+                ] %>
+              </td>
+
+              <td>
+                <%= new Date(
+                  ticket.createdAt
+                ).toLocaleString("pt-BR") %>
+              </td>
+
+              <td>
+                <a
+                  href="/chamados/<%= ticket._id %>"
+                >
+                  Ver detalhes
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<script src="/vendor/chart.js/chart.umd.min.js"></script>
+
+<script
+  id="chart-data"
+  type="application/json"
+>
+  <%- chartDataJson || "{}" %>
+</script>
+
+<script>
+  const chartDataElement =
+    document.getElementById("chart-data");
+
+  const chartData = JSON.parse(
+    chartDataElement.textContent
+  );
+
+  const statusCanvas =
+    document.getElementById("status-chart");
+
+  const typeCanvas =
+    document.getElementById("type-chart");
+
+  new Chart(statusCanvas, {
+    type: "doughnut",
+
+    data: {
+      labels: chartData.status.labels,
+
+      datasets: [
+        {
+          label: "Chamados",
+          data: chartData.status.values,
+
+          backgroundColor: [
+            "#2563eb",
+            "#f59e0b",
+            "#16a34a",
+            "#64748b",
+          ],
+
+          borderWidth: 1,
+        },
+      ],
+    },
+
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+
+      plugins: {
+        legend: {
+          position: "bottom",
+        },
+      },
+    },
+  });
+
+  new Chart(typeCanvas, {
+    type: "bar",
+
+    data: {
+      labels: chartData.type.labels,
+
+      datasets: [
+        {
+          label: "Quantidade",
+          data: chartData.type.values,
+          backgroundColor: "#2563eb",
+          borderWidth: 1,
+        },
+      ],
+    },
+
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+
+      scales: {
+        y: {
+          beginAtZero: true,
+
+          ticks: {
+            precision: 0,
+          },
+        },
+      },
+
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+    },
+  });
+</script>
