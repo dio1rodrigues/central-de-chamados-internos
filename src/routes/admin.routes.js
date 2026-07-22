@@ -3,6 +3,9 @@ const express = require("express");
 const adminController =
   require("../controllers/admin.controller");
 
+const userController =
+  require("../controllers/user.controller");
+
 const {
   requireAuth,
 } = require("../middlewares/auth.middleware");
@@ -25,6 +28,27 @@ router.get(
   requireAuth,
   requireAdmin,
   adminController.showAuditLogs
+);
+
+router.get(
+  "/admin/users",
+  requireAuth,
+  requireAdmin,
+  userController.showUserList
+);
+
+router.get(
+  "/admin/users/new",
+  requireAuth,
+  requireAdmin,
+  userController.showUserCreateForm
+);
+
+router.post(
+  "/admin/users",
+  requireAuth,
+  requireAdmin,
+  userController.handleUserCreate
 );
 
 module.exports = router;

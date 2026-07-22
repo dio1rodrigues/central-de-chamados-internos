@@ -1,0 +1,74 @@
+<section class="page-header">
+  <div>
+    <h1>Usuários</h1>
+
+    <p>
+      Consulte os usuários cadastrados no sistema.
+    </p>
+  </div>
+
+  <a href="/admin/users/new">
+    Novo usuário
+  </a>
+</section>
+
+<% if (userCreated) { %>
+  <div class="feedback feedback-success">
+    Usuário criado com sucesso.
+  </div>
+<% } %>
+
+<% if (users.length === 0) { %>
+  <div class="empty-state">
+    Nenhum usuário foi encontrado.
+  </div>
+<% } else { %>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Perfil</th>
+          <th>Status</th>
+          <th>Criado em</th>
+          <th>Último acesso</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% users.forEach((user) => { %>
+          <tr>
+            <td><%= user.name %></td>
+
+            <td><%= user.email %></td>
+
+            <td>
+              <%= roleLabels[user.role] || user.role %>
+            </td>
+
+            <td>
+              <%= user.active ? "Ativo" : "Inativo" %>
+            </td>
+
+            <td>
+              <%= new Date(
+                user.createdAt
+              ).toLocaleString("pt-BR") %>
+            </td>
+
+            <td>
+              <% if (user.lastLoginAt) { %>
+                <%= new Date(
+                  user.lastLoginAt
+                ).toLocaleString("pt-BR") %>
+              <% } else { %>
+                Nunca
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
