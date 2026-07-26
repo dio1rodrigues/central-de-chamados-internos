@@ -49,6 +49,44 @@ const validateCreateUserInput = (input = {}) => {
     };
 };
 
+const validateEditUserInput = (input = {}) => {
+    const values = {
+        name: typeof input.name === "string"
+            ? input.name.trim()
+            : "",
+        email: typeof input.email === "string"
+            ? input.email.trim().toLowerCase()
+            : "",
+        role: typeof input.role === "string"
+            ? input.role.trim()
+            : "",
+    };
+    const errors = {};
+
+    if (values.name.length < 3) {
+        errors.name = "O nome deve possuir pelo menos 3 caracteres.";
+    } else if (values.name.length > 100) {
+        errors.name = "O nome deve possuir no máximo 100 caracteres.";
+    }
+
+    if (values.email.length === 0) {
+        errors.email = "O email é obrigatório.";
+    } else if (!/^\S+@\S+\.\S+$/.test(values.email)) {
+        errors.email = "O email é inválido.";
+    }
+
+    if (!USER_ROLE_VALUES.includes(values.role)) {
+        errors.role = "Selecione um papel de usuário válido.";
+    }
+
+    return {
+        values,
+        errors,
+        isValid: Object.keys(errors).length === 0,
+    };
+};
+
 module.exports = {
     validateCreateUserInput,
+    validateEditUserInput,
 };
