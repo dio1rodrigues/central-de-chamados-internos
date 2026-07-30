@@ -51,4 +51,32 @@ router.post(
   userController.handleUserCreate
 );
 
+router.get(
+  "/admin/users/:id/edit",
+  requireAuth,
+  requireAdmin,
+  userController.showUserEditForm
+);
+
+router.post(
+  "/admin/users/:id/edit",
+  requireAuth,
+  requireAdmin,
+  userController.handleUserProfileUpdate
+);
+
+router.post(
+  "/admin/users/:id/role",
+  requireAuth,
+  requireAdmin,
+  userController.handleUserRoleChange
+);
+
+router.post(
+  "/admin/users/:id/status",
+  requireAuth,
+  requireAdmin,
+  userController.handleUserStatusChange
+);
+
 module.exports = router;

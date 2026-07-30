@@ -33,6 +33,7 @@
           <th>Status</th>
           <th>Criado em</th>
           <th>Último acesso</th>
+          <th>Ações</th>
         </tr>
       </thead>
 
@@ -66,9 +67,15 @@
                 Nunca
               <% } %>
             </td>
+            <td>
+              <a href="/admin/users/<%= user._id %>/edit">
+                Editar
+              </a>
+            </td>
           </tr>
         <% }) %>
       </tbody>
     </table>
   </div>
 <% } %>
+
