@@ -1,25 +1,26 @@
 const app = require("../src/app");
+
 const connectDatabase = require(
   "../src/config/database"
 );
 
-let databaseConnection;
-
 const handler = async (req, res) => {
   try {
-    if (!databaseConnection) {
-      databaseConnection = connectDatabase();
-    }
-
-    await databaseConnection;
+    await connectDatabase();
 
     return app(req, res);
   } catch (error) {
-    console.error("Erro na função da Vercel:", error);
-
-    return res.status(500).send(
-      "Erro interno do servidor."
+    console.error(
+      "[ERRO DE INICIALIZAÇÃO DA VERCEL]",
+      {
+        message: error.message,
+        stack: error.stack,
+      }
     );
+
+    return res
+      .status(500)
+      .send("Erro ao conectar com o banco de dados.");
   }
 };
 
