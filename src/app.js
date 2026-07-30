@@ -2,8 +2,9 @@ const express = require("express");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 
-const createSessionMiddleware =
-  require("./config/session");
+const {
+  createSessionMiddleware,
+} = require("./config/session");
 
 const homeRoutes =
   require("./routes/home.routes");
@@ -37,6 +38,7 @@ const app = express();
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.set("layout", "layouts/main");
+app.set("trust proxy", 1);
 
 // Middlewares
 app.use(expressLayouts);

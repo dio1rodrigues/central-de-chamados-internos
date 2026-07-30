@@ -2,35 +2,31 @@ const session = require("express-session");
 const { MongoStore } = require("connect-mongo");
 
 const createSessionMiddleware = () => {
-  const { MONGODB_URI, SESSION_SECRET, NODE_ENV } = process.env;
-
-  if (!MONGODB_URI) {
-    throw new Error("A variável MONGODB_URI não foi configurada.");
-  }
-
-  if (!SESSION_SECRET) {
-    throw new Error("A variável SESSION_SECRET não foi configurada.");
-  }
+  const isProduction =
+    process.env.NODE_ENV === "production";
 
   return session({
     name: "central_chamados.sid",
-    secret: SESSION_SECRET,
+
+    secret: process.env.SESSION_SECRET,
+
     resave: false,
     saveUninitialized: false,
 
     store: MongoStore.create({
-      mongoUrl: MONGODB_URI,
+      mongoUrl: process.env.MONGODB_URI,
       collectionName: "sessions",
-      ttl: 4 * 60 * 60,
     }),
 
     cookie: {
       httpOnly: true,
-      secure: NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "lax",
-      maxAge: 4 * 60 * 60 * 1000,
+      maxAge: 1000 * 60 * 60 * 8,
     },
   });
 };
 
-module.exports = createSessionMiddleware;
+module.exports = {
+  createSessionMiddleware,
+};
