@@ -5,15 +5,20 @@ const multer = require("multer");
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
+const uploadsEnabled =
+  process.env.UPLOADS_ENABLED !== "false";
+
 const uploadDirectory = path.join(
   process.cwd(),
   "uploads",
   "tickets"
 );
 
-fs.mkdirSync(uploadDirectory, {
-  recursive: true,
-});
+if (uploadsEnabled) {
+  fs.mkdirSync(uploadDirectory, {
+    recursive: true,
+  });
+}
 
 const allowedMimeTypes = {
   "application/pdf": [".pdf"],
@@ -82,6 +87,13 @@ const uploadTicketAttachment = (
   res,
   next
 ) => {
+  if (!uploadsEnabled) {
+    req.fileUploadError =
+      "Upload indisponível neste ambiente.";
+
+    return next();
+  }
+
   upload.single("attachment")(
     req,
     res,
