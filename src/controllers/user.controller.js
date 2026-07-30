@@ -262,7 +262,8 @@ const handleUserRoleChange = async (
   } catch (error) {
     if (
       error.code === "INVALID_ROLE" ||
-      error.code === "ROLE_ALREADY_SET"
+      error.code === "ROLE_ALREADY_SET" ||
+      error.code === "LAST_ADMIN_PROTECTED"
     ) {
       try {
         const user =
@@ -321,7 +322,8 @@ const handleUserStatusChange = async (
 
     await userService.changeUserStatus(
       req.params.id,
-      isActive
+      isActive,
+      req.session.user.id
     );
 
     return res.redirect(
@@ -330,7 +332,9 @@ const handleUserStatusChange = async (
   } catch (error) {
     if (
       error.code === "INVALID_STATUS" ||
-      error.code === "STATUS_ALREADY_SET"
+      error.code === "STATUS_ALREADY_SET" ||
+      error.code === "SELF_DEACTIVATION_NOT_ALLOWED" ||
+      error.code === "LAST_ADMIN_PROTECTED"
     ) {
       try {
         const user =

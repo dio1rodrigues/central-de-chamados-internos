@@ -25,6 +25,12 @@ const {
   errorHandler,
 } = require("./middlewares/error.middleware");
 
+const {
+  refreshSessionUser,
+} = require(
+  "./middlewares/session-user.middleware"
+);
+
 const app = express();
 
 // Configuração do EJS
@@ -37,7 +43,10 @@ app.use(expressLayouts);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+
+
 app.use(createSessionMiddleware());
+app.use(refreshSessionUser);
 
 app.use(
   "/vendor/chart.js",
@@ -51,13 +60,6 @@ app.use(
     )
   )
 );
-
-app.use((req, res, next) => {
-  res.locals.currentUser =
-    req.session.user || null;
-
-  next();
-});
 
 // Rotas
 app.use(authRoutes);

@@ -3,7 +3,8 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 
 const {
-  USER_ROLE_VALUES,
+  USER_ROLES,
+  USER_ROLE_VALUES
 } = require("../constants/user.constants");
 
 const createUserServiceError = (code, message) => {
@@ -150,12 +151,15 @@ const updateUserProfile = async (userId, profileData) => {
   return formatUserResponse(user);
 };
 
-const changeUserRole = async (userId, newRole) => {
+const changeUserRole = async (
+  userId,
+  newRole
+) => {
   const normalizedRole =
     typeof newRole === "string"
       ? newRole.trim()
       : "";
-      
+
   if (!USER_ROLE_VALUES.includes(normalizedRole)) {
     throw createUserServiceError(
       "INVALID_ROLE",
@@ -163,20 +167,41 @@ const changeUserRole = async (userId, newRole) => {
     );
   }
 
-const user = await User.findById(userId);
+  const user = await User.findById(userId);
 
-if (!user) {
-  throw createUserServiceError(
-  "USER_NOT_FOUND",
-  "Usuário não encontrado.");
-}
+  if (!user) {
+    throw createUserServiceError(
+      "USER_NOT_FOUND",
+      "Usuário não encontrado."
+    );
+  }
 
-if (user.role === normalizedRole) {
-  throw createUserServiceError(
-  "ROLE_ALREADY_SET",
-  "O usuário já possui esse perfil."
-  );
-}
+  if (user.role === normalizedRole) {
+    throw createUserServiceError(
+      "ROLE_ALREADY_SET",
+      "O usuário já possui esse perfil."
+    );
+  }
+
+  const isRemovingActiveAdminRole =
+    user.role === USER_ROLES.ADMIN &&
+    normalizedRole !== USER_ROLES.ADMIN &&
+    user.active === true;
+
+  if (isRemovingActiveAdminRole) {
+    const activeAdminCount =
+      await User.countDocuments({
+        role: USER_ROLES.ADMIN,
+        active: true,
+      });
+
+    if (activeAdminCount <= 1) {
+      throw createUserServiceError(
+        "LAST_ADMIN_PROTECTED",
+        "O último administrador ativo não pode ser rebaixado."
+      );
+    }
+  }
 
   user.role = normalizedRole;
 
@@ -186,19 +211,22 @@ if (user.role === normalizedRole) {
 };
 
 const changeUserStatus = async (
-  userId,
-  isActive
+  targetUserId,
+  isActive,
+  actorUserId
 ) => {
   if (typeof isActive !== "boolean") {
     throw createUserServiceError(
-    "INVALID_STATUS",
-    "Status inválido."
+      "INVALID_STATUS",
+      "Status inválido."
     );
   }
 
-  const user = await User.findById(userId);
+  const user = await User.findById(
+    targetUserId
+  );
 
-  if(!user) {
+  if (!user) {
     throw createUserServiceError(
       "USER_NOT_FOUND",
       "Usuário não encontrado."
@@ -207,17 +235,49 @@ const changeUserStatus = async (
 
   if (user.active === isActive) {
     throw createUserServiceError(
-    "STATUS_ALREADY_SET",
-    "O usuário já possui esse status."
+      "STATUS_ALREADY_SET",
+      "O usuário já possui esse status."
     );
   }
-  
+
+  const isSelfDeactivation =
+    user._id.toString() ===
+      actorUserId.toString() &&
+    isActive === false;
+
+  if (isSelfDeactivation) {
+    throw createUserServiceError(
+      "SELF_DEACTIVATION_NOT_ALLOWED",
+      "Você não pode desativar sua própria conta."
+    );
+  }
+
+  const isDeactivatingActiveAdmin =
+    user.role === USER_ROLES.ADMIN &&
+    user.active === true &&
+    isActive === false;
+
+  if (isDeactivatingActiveAdmin) {
+    const activeAdminCount =
+      await User.countDocuments({
+        role: USER_ROLES.ADMIN,
+        active: true,
+      });
+
+    if (activeAdminCount <= 1) {
+      throw createUserServiceError(
+        "LAST_ADMIN_PROTECTED",
+        "O último administrador ativo não pode ser desativado."
+      );
+    }
+  }
+
   user.active = isActive;
 
   await user.save();
 
   return formatUserResponse(user);
-}
+};
 
 
 module.exports = {
