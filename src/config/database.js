@@ -1,15 +1,29 @@
 const mongoose = require("mongoose");
 
-const connectDatabase = async () => {
-  const databaseUri = process.env.MONGODB_URI;
+let connectionPromise = null;
 
-  if (!databaseUri) {
-    throw new Error("A variável MONGODB_URI não foi configurada.");
+const connectDatabase = async () => {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
   }
 
-  await mongoose.connect(databaseUri);
+  if (!connectionPromise) {
+    connectionPromise = mongoose
+      .connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 15000,
+      })
+      .then(() => {
+        console.log("MongoDB conectado com sucesso.");
 
-  console.log("MongoDB conectado com sucesso.");
+        return mongoose.connection;
+      })
+      .catch((error) => {
+        connectionPromise = null;
+        throw error;
+      });
+  }
+
+  return connectionPromise;
 };
 
 module.exports = connectDatabase;
