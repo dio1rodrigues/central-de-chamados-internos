@@ -110,6 +110,7 @@ const handleUserCreate = async (
     });
 
     return res.redirect(
+      303,
       "/admin/users?created=1"
     );
   } catch (error) {
@@ -190,6 +191,7 @@ const handleUserProfileUpdate = async (
     );
 
     return res.redirect(
+      303,
       `/admin/users/${req.params.id}/edit?updated=1`
     );
   } catch (error) {
@@ -257,6 +259,7 @@ const handleUserRoleChange = async (
     );
 
     return res.redirect(
+      303,
       `/admin/users/${req.params.id}/edit?roleChanged=1`
     );
   } catch (error) {
@@ -327,6 +330,7 @@ const handleUserStatusChange = async (
     );
 
     return res.redirect(
+      303,
       `/admin/users/${req.params.id}/edit?statusChanged=1`
     );
   } catch (error) {
