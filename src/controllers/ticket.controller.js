@@ -117,6 +117,7 @@ const createTicket = async (req, res, next) => {
     });
 
     return res.redirect(
+      303,
       `/chamados/${ticket._id}`
     );
   } catch (error) {
@@ -317,6 +318,7 @@ const updateStatus = async (req, res, next) => {
     });
 
     return res.redirect(
+      303,
       `/chamados/${ticket._id}?statusUpdated=1`
     );
   } catch (error) {
@@ -405,6 +407,7 @@ const addComment = async (req, res, next) => {
     });
 
     return res.redirect(
+      303,
       `/chamados/${ticket._id}?commentAdded=1`
     );
 

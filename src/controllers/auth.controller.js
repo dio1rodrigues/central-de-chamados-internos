@@ -116,7 +116,7 @@ const login = async (req, res, next) => {
       ...getRequestContext(req),
     });
 
-    return res.redirect("/dashboard");
+    return res.redirect(303, "/dashboard");
   } catch (error) {
     return next(error);
   }
@@ -138,7 +138,7 @@ const logout = async (req, res, next) => {
       ...requestContext,
     });
 
-    return res.redirect("/login");
+    return res.redirect(303, "/login");
   } catch (error) {
     return next(error);
   }
